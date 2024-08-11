@@ -1,10 +1,8 @@
 #+TITLE: unison-sync-mode
 
-* unison-sync-mode
-
 An Emacs package that integrates Unison file synchronization into your Emacs workflow.
 
-** Table of Contents
+* Table of Contents
 :PROPERTIES:
 :TOC:      :include all :depth 3 :force ((depth)) :ignore (this)
 :END:
@@ -19,7 +17,7 @@ An Emacs package that integrates Unison file synchronization into your Emacs wor
 - [[#license][License]]
 :END:
 
-** Features
+* Features
 
 - Automatically sync files using Unison when saving in Emacs
 - Queue multiple sync commands to avoid conflicts
@@ -28,9 +26,9 @@ An Emacs package that integrates Unison file synchronization into your Emacs wor
 - Force sync with ignorearchives flag
 - Detailed output buffer for sync operations
 
-** Installation
+* Installation
 
-*** With straight.el
+** With straight.el
 
 To install unison-sync-mode using straight.el, add the following to your Emacs configuration:
 
@@ -46,7 +44,7 @@ If you prefer using use-package with straight.el:
   :straight (:type git :host github :repo "jsigman/unison-sync-mode"))
 #+END_SRC
 
-*** Manual
+** Manual
 
 1. Clone this repository:
    #+BEGIN_SRC sh
@@ -59,7 +57,7 @@ If you prefer using use-package with straight.el:
    (require 'unison-sync-mode)
    #+END_SRC
 
-** Configuration
+* Configuration
 
 To use ~unison-sync-mode~, you need to set up directory local variables for your project. Create a ~.dir-locals.el~ file in your project root with the following content:
 
@@ -72,7 +70,7 @@ To use ~unison-sync-mode~, you need to set up directory local variables for your
 
 Adjust the paths and excluded patterns according to your needs.
 
-** Usage
+* Usage
 
 Once configured, ~unison-sync-mode~ will be automatically enabled for files in directories where ~unison-root1~ and ~unison-root2~ are set.
 
@@ -80,12 +78,12 @@ When ~unison-sync-mode~ is active:
 - Files will be synchronized using Unison every time you save.
 - The mode lighter "Unison-Sync" will be displayed in the mode line.
 
-** Available Functions
+* Available Functions
 
 - ~unison-sync-mode~: Toggle the minor mode on/off manually.
 - ~unison-sync-force~: Force a sync operation with the -ignorearchives flag.
 
-** Customization
+* Customization
 
 You can customize the following variables:
 
@@ -99,10 +97,10 @@ Example:
 (setq unison-sync-auto-enable nil)
 #+END_SRC
 
-** Contributing
+* Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-** License
+* License
 
 This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
