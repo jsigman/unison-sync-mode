@@ -1,4 +1,4 @@
-;;; unison-sync.el --- Unison file synchronization for Emacs -*- lexical-binding: t; -*-
+;;; unison-sync-mode.el --- Unison file synchronization for Emacs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024 John Sigman
 
@@ -29,24 +29,21 @@
 
 ;;; Code:
 
-;; Custom group definition
-(defgroup unison-sync nil
+(defgroup unison-sync-mode nil
   "Unison synchronization for Emacs."
   :group 'external)
 
-;; Custom variables
 (defcustom unison-sync-auto-enable t
   "Whether to automatically enable unison-sync-mode when root directories are set."
   :type 'boolean
-  :group 'unison-sync)
+  :group 'unison-sync-mode)
 
 (defcustom unison-one-way-sync nil
   "Specify whether to perform one-way synchronization.
 If non-nil, Unison will only propagate changes from `unison-root1` to `unison-root2`."
   :type 'boolean
-  :group 'unison-sync)
+  :group 'unison-sync-mode)
 
-;; Internal variables
 (defvar unison-sync-queue nil
   "Queue of Unison sync commands to run.")
 
@@ -62,8 +59,7 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
 (defvar-local unison-excluded nil
   "List of patterns to exclude in Unison sync.")
 
-;; Core functions
-(defun unison-build-command ()
+(defun unison-sync-build-command ()
   "Build the Unison command based on directory local variables."
   (when (and unison-root1 unison-root2)
     (let ((command
@@ -75,13 +71,13 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
         (setq command (concat command " -force " unison-root1)))
       command)))
 
-(defun unison-process-next-command ()
+(defun unison-sync-process-next-command ()
   "Process the next command in the queue if not currently running."
   (when (and (not unison-sync-running) unison-sync-queue)
     (let ((command (pop unison-sync-queue)))
-      (unison-run-command command))))
+      (unison-sync-run-command command))))
 
-(defun unison-run-command (command)
+(defun unison-sync-run-command (command)
   "Run a Unison command."
   (let ((output-buffer (get-buffer-create "*Unison Sync*")))
     (with-current-buffer output-buffer
@@ -111,7 +107,7 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
 (defun unison-sync-sentinel (process event)
   "Handle completion of a Unison process."
   (setq unison-sync-running nil)
-  (unison-process-next-command) ; Process next command in the queue
+  (unison-sync-process-next-command) ; Process next command in the queue
   (with-current-buffer (process-buffer process)
     (goto-char (point-max))
     (insert (format "\nProcess %s %s" process event))
@@ -127,21 +123,21 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
 
 (defun unison-sync-on-save ()
   "Queue Unison sync command on file save."
-  (let ((command (unison-build-command)))
+  (let ((command (unison-sync-build-command)))
     (when command
       (push command unison-sync-queue)
-      (unison-process-next-command))))
+      (unison-sync-process-next-command))))
 
-(defun unison-force-sync ()
+(defun unison-sync-force ()
   "Force a Unison sync with -ignorearchives flag."
   (interactive)
-  (let ((command (unison-build-command)))
+  (let ((command (unison-sync-build-command)))
     (when command
       (setq command (concat command " -ignorearchives"))
       (push command unison-sync-queue)
-      (unison-process-next-command))))
+      (unison-sync-process-next-command))))
 
-;; Mode definition
+;;;###autoload
 (define-minor-mode unison-sync-mode
   "Minor mode to sync the current project using Unison on file save."
   :lighter
@@ -150,17 +146,16 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
       (add-hook 'after-save-hook #'unison-sync-on-save nil t)
     (remove-hook 'after-save-hook #'unison-sync-on-save t)))
 
-(defun maybe-enable-unison-sync-mode ()
+(defun unison-sync-maybe-enable ()
   "Enable `unison-sync-mode` if `unison-root1` and `unison-root2` are set."
   (when unison-sync-auto-enable
     (if (and unison-root1 unison-root2)
         (unison-sync-mode 1)
       (message
-       "unison-sync: Root directories not set, mode not enabled."))))
+       "unison-sync-mode: Root directories not set, mode not enabled."))))
 
-;; Auto-enable hook
 (when unison-sync-auto-enable
-  (add-hook
-   'hack-local-variables-hook #'maybe-enable-unison-sync-mode))
+  (add-hook 'hack-local-variables-hook #'unison-sync-maybe-enable))
 
-(provide 'unison-sync)
+(provide 'unison-sync-mode)
+;;; unison-sync-mode.el ends here
