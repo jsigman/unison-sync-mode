@@ -1,3 +1,52 @@
+;;; unison-sync.el --- Unison file synchronization for Emacs -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2024 John Sigman
+
+;; Author: John Sigman
+;; Version: 0.1
+;; Package-Requires: ((emacs "29.1"))
+;; Keywords: convenience, files
+;; URL: https://github.com/jsigman/unison-sync-mode
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This package provides integration of Unison file synchronization into Emacs.
+;; It allows automatic synchronization of files on save, with support for
+;; excluding specific patterns and one-way synchronization.
+
+;;; Code:
+
+;; Custom group definition
+(defgroup unison-sync nil
+  "Unison synchronization for Emacs."
+  :group 'external)
+
+;; Custom variables
+(defcustom unison-sync-auto-enable t
+  "Whether to automatically enable unison-sync-mode when root directories are set."
+  :type 'boolean
+  :group 'unison-sync)
+
+(defcustom unison-one-way-sync nil
+  "Specify whether to perform one-way synchronization.
+If non-nil, Unison will only propagate changes from `unison-root1` to `unison-root2`."
+  :type 'boolean
+  :group 'unison-sync)
+
+;; Internal variables
 (defvar unison-sync-queue nil
   "Queue of Unison sync commands to run.")
 
@@ -13,12 +62,7 @@
 (defvar-local unison-excluded nil
   "List of patterns to exclude in Unison sync.")
 
-(defcustom unison-one-way-sync nil
-  "Specify whether to perform one-way synchronization.
-If non-nil, Unison will only propagate changes from `unison-root1` to `unison-root2`."
-  :type 'boolean
-  :group 'unison)
-
+;; Core functions
 (defun unison-build-command ()
   "Build the Unison command based on directory local variables."
   (when (and unison-root1 unison-root2)
@@ -97,17 +141,26 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
       (push command unison-sync-queue)
       (unison-process-next-command))))
 
+;; Mode definition
 (define-minor-mode unison-sync-mode
   "Minor mode to sync the current project using Unison on file save."
   :lighter
   " Unison-Sync"
   (if unison-sync-mode
-      (add-hook 'after-save-hook 'unison-sync-on-save nil t)
-    (remove-hook 'after-save-hook 'unison-sync-on-save t)))
+      (add-hook 'after-save-hook #'unison-sync-on-save nil t)
+    (remove-hook 'after-save-hook #'unison-sync-on-save t)))
 
 (defun maybe-enable-unison-sync-mode ()
   "Enable `unison-sync-mode` if `unison-root1` and `unison-root2` are set."
-  (when (and unison-root1 unison-root2)
-    (unison-sync-mode 1)))
+  (when unison-sync-auto-enable
+    (if (and unison-root1 unison-root2)
+        (unison-sync-mode 1)
+      (message
+       "unison-sync: Root directories not set, mode not enabled."))))
 
-(add-hook 'hack-local-variables-hook 'maybe-enable-unison-sync-mode)
+;; Auto-enable hook
+(when unison-sync-auto-enable
+  (add-hook
+   'hack-local-variables-hook #'maybe-enable-unison-sync-mode))
+
+(provide 'unison-sync)
