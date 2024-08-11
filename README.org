@@ -1,0 +1,94 @@
+#+TITLE: emacs-unison-sync
+
+* emacs-unison-sync
+
+An Emacs package that integrates [[https://github.com/bcpierce00/unison][Unison]] file synchronization into your Emacs workflow.
+
+** Table of Contents
+:PROPERTIES:
+:TOC:      :include all :depth 3 :force ((depth)) :ignore (this)
+:END:
+:CONTENTS:
+- [[#features][Features]]
+- [[#installation][Installation]]
+- [[#configuration][Configuration]]
+- [[#usage][Usage]]
+- [[#available-functions][Available Functions]]
+- [[#customization][Customization]]
+- [[#contributing][Contributing]]
+- [[#license][License]]
+:END:
+
+** Features
+
+- Automatically sync files using Unison when saving in Emacs
+- Queue multiple sync commands to avoid conflicts
+- Exclude specific files or patterns from synchronization
+- Support for one-way synchronization
+- Force sync with ignorearchives flag
+- Detailed output buffer for sync operations
+
+** Installation
+
+*** Manual
+
+1. Clone this repository:
+   #+BEGIN_SRC sh
+   git clone https://github.com/yourusername/emacs-unison-sync.git
+   #+END_SRC
+
+2. Add the following to your ~.emacs~ or ~init.el~ file:
+   #+BEGIN_SRC emacs-lisp
+   (add-to-list 'load-path "/path/to/emacs-unison-sync")
+   (require 'unison-sync)
+   #+END_SRC
+
+*** MELPA
+
+Coming soon!
+
+** Configuration
+
+To use ~emacs-unison-sync~, you need to set up directory local variables for your project. Create a ~.dir-locals.el~ file in your project root with the following content:
+
+#+BEGIN_SRC emacs-lisp
+((nil . ((unison-root1 . "/path/to/local/directory")
+         (unison-root2 . "/path/to/remote/directory")
+         (unison-excluded . ("*.tmp" "*.log"))
+         (unison-one-way-sync . nil))))
+#+END_SRC
+
+Adjust the paths and excluded patterns according to your needs.
+
+** Usage
+
+Once configured, ~unison-sync-mode~ will be automatically enabled for files in directories where ~unison-root1~ and ~unison-root2~ are set.
+
+When ~unison-sync-mode~ is active:
+- Files will be synchronized using Unison every time you save.
+- The mode lighter "Unison-Sync" will be displayed in the mode line.
+
+** Available Functions
+
+- ~unison-sync-mode~: Toggle the minor mode on/off manually.
+- ~unison-force-sync~: Force a sync operation with the -ignorearchives flag.
+
+** Customization
+
+You can customize the following variable:
+
+- ~unison-one-way-sync~: Set to non-nil to perform one-way synchronization from ~unison-root1~ to ~unison-root2~.
+
+Example:
+
+#+BEGIN_SRC emacs-lisp
+(setq unison-one-way-sync t)
+#+END_SRC
+
+** Contributing
+
+Contributions are welcome, please submit a Pull Request. Right now no additional features are planned, only bug fixes and improvements.
+
+** License
+
+This project is licensed under the GPL-3.0 License. See the LICENSE file for details.
