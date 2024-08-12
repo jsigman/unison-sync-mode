@@ -149,10 +149,8 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
 (defun unison-sync-maybe-enable ()
   "Enable `unison-sync-mode` if `unison-root1` and `unison-root2` are set."
   (when unison-sync-auto-enable
-    (if (and unison-root1 unison-root2)
-        (unison-sync-mode 1)
-      (message
-       "unison-sync-mode: Root directories not set, mode not enabled."))))
+    (when (and unison-root1 unison-root2)
+      (unison-sync-mode 1))))
 
 (when unison-sync-auto-enable
   (add-hook 'hack-local-variables-hook #'unison-sync-maybe-enable))
