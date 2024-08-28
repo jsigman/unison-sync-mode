@@ -1,6 +1,6 @@
 #+TITLE: unison-sync-mode
 
-An Emacs package that integrates Unison file synchronization into your Emacs workflow.
+An Emacs package that integrates [[https://github.com/bcpierce00/unison][Unison file synchronization]] into your Emacs workflow.
 
 * Table of Contents
 :PROPERTIES:
