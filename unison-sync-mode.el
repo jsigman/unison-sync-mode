@@ -71,6 +71,14 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
         (setq command (concat command " -force " unison-root1)))
       command)))
 
+(defun unison-sync-test--command-builder ()
+  "Test helper function for testing command building."
+  (let ((unison-root1 "/test/dir1")
+        (unison-root2 "/test/dir2")
+        (unison-excluded '("*.tmp" "*.log"))
+        (unison-one-way-sync t))
+    (unison-sync-build-command)))
+
 (defun unison-sync-process-next-command ()
   "Process the next command in the queue if not currently running."
   (when (and (not unison-sync-running) unison-sync-queue)
@@ -137,18 +145,44 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
       (push command unison-sync-queue)
       (unison-sync-process-next-command))))
 
+(defvar unison-global-mode-enabled t
+  "Flag to track if unison-sync is globally enabled.
+This is toggled by the `unison-global-mode' command.")
+
+;;;###autoload
+(defun unison-global-mode ()
+  "Toggle unison-sync-mode globally.
+When disabled, turns off unison-sync-mode in all buffers.
+When enabled, activates unison-sync-mode in all buffers with configured roots."
+  (interactive)
+  (setq unison-global-mode-enabled (not unison-global-mode-enabled))
+  (if unison-global-mode-enabled
+      ;; Enable in all buffers that should have it
+      (progn
+        (dolist (buffer (buffer-list))
+          (with-current-buffer buffer
+            (when (and unison-root1 unison-root2)
+              (unison-sync-mode 1))))
+        (message "Unison sync enabled globally"))
+    ;; Disable in all buffers
+    (progn
+      (dolist (buffer (buffer-list))
+        (with-current-buffer buffer
+          (when unison-sync-mode
+            (unison-sync-mode -1))))
+      (message "Unison sync disabled globally"))))
+
 ;;;###autoload
 (define-minor-mode unison-sync-mode
   "Minor mode to sync the current project using Unison on file save."
-  :lighter
-  " Unison-Sync"
+  :lighter " Unison-Sync"
   (if unison-sync-mode
       (add-hook 'after-save-hook #'unison-sync-on-save nil t)
     (remove-hook 'after-save-hook #'unison-sync-on-save t)))
 
 (defun unison-sync-maybe-enable ()
   "Enable `unison-sync-mode` if `unison-root1` and `unison-root2` are set."
-  (when unison-sync-auto-enable
+  (when (and unison-sync-auto-enable unison-global-mode-enabled)
     (when (and unison-root1 unison-root2)
       (unison-sync-mode 1))))
 

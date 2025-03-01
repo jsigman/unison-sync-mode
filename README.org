@@ -25,6 +25,7 @@ An Emacs package that integrates [[https://github.com/bcpierce00/unison][Unison 
 - Support for one-way synchronization
 - Force sync with ignorearchives flag
 - Detailed output buffer for sync operations
+- Global toggle to easily disable/enable sync across all buffers
 
 * Installation
 
@@ -80,8 +81,9 @@ When ~unison-sync-mode~ is active:
 
 * Available Functions
 
-- ~unison-sync-mode~: Toggle the minor mode on/off manually.
+- ~unison-sync-mode~: Toggle the minor mode on/off manually for the current buffer.
 - ~unison-sync-force~: Force a sync operation with the -ignorearchives flag.
+- ~unison-global-mode~: Toggle unison-sync-mode globally across all buffers.
 
 * Customization
 
@@ -89,6 +91,7 @@ You can customize the following variables:
 
 - ~unison-one-way-sync~: Set to non-nil to perform one-way synchronization from ~unison-root1~ to ~unison-root2~.
 - ~unison-sync-auto-enable~: Set to nil if you want to manually enable the mode instead of having it automatically enabled when root directories are set.
+- ~unison-global-mode-enabled~: Controls whether unison-sync should be enabled across all buffers. Normally you should use the ~unison-global-mode~ command to toggle this.
 
 Example:
 
@@ -100,6 +103,26 @@ Example:
 * Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+** Development
+
+To contribute to the project:
+
+1. Fork the repository
+2. Make your changes
+3. Run the tests:
+   #+BEGIN_SRC sh
+   make test
+   #+END_SRC
+
+4. Ensure code quality:
+   #+BEGIN_SRC sh
+   make lint
+   #+END_SRC
+
+5. Submit a PR
+
+All PRs will automatically be tested in CI on GitHub.
 
 * License
 
