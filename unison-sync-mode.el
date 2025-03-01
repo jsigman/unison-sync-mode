@@ -1,4 +1,4 @@
-;;; unison-sync-mode.el --- Unison file synchronization for Emacs -*- lexical-binding: t; -*-
+;;; unison-sync-mode.el --- Unison file synchronization -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024 John Sigman
 
@@ -29,20 +29,20 @@
 
 ;;; Code:
 
-(defgroup unison-sync-mode nil
+(defgroup unison-sync nil
   "Unison synchronization for Emacs."
   :group 'external)
 
 (defcustom unison-sync-auto-enable t
   "Whether to automatically enable unison-sync-mode when root directories are set."
   :type 'boolean
-  :group 'unison-sync-mode)
+  :group 'unison-sync)
 
-(defcustom unison-one-way-sync nil
+(defcustom unison-sync-one-way-sync nil
   "Specify whether to perform one-way synchronization.
-If non-nil, Unison will only propagate changes from `unison-root1` to `unison-root2`."
+If non-nil, Unison will only propagate changes from `unison-sync-root1` to `unison-sync-root2`."
   :type 'boolean
-  :group 'unison-sync-mode)
+  :group 'unison-sync)
 
 (defvar unison-sync-queue nil
   "Queue of Unison sync commands to run.")
@@ -50,26 +50,34 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
 (defvar unison-sync-running nil
   "Flag to check if a Unison sync is currently running.")
 
-(defvar-local unison-root1 nil
+(defvar-local unison-sync-root1 nil
   "The first root directory for Unison sync.")
 
-(defvar-local unison-root2 nil
+(defvar-local unison-sync-root2 nil
   "The second root directory for Unison sync.")
 
-(defvar-local unison-excluded nil
+(defvar-local unison-sync-excluded nil
   "List of patterns to exclude in Unison sync.")
 
 (defun unison-sync-build-command ()
   "Build the Unison command based on directory local variables."
-  (when (and unison-root1 unison-root2)
+  (when (and unison-sync-root1 unison-sync-root2)
     (let ((command
            (concat
-            "unison -batch " unison-root1 " " unison-root2 " -auto")))
-      (dolist (pattern unison-excluded)
+            "unison -batch " unison-sync-root1 " " unison-sync-root2 " -auto")))
+      (dolist (pattern unison-sync-excluded)
         (setq command (concat command " -ignore 'Name " pattern "'")))
-      (when unison-one-way-sync
-        (setq command (concat command " -force " unison-root1)))
+      (when unison-sync-one-way-sync
+        (setq command (concat command " -force " unison-sync-root1)))
       command)))
+
+(defun unison-sync-test--command-builder ()
+  "Test helper function for testing command building."
+  (let ((unison-sync-root1 "/test/dir1")
+        (unison-sync-root2 "/test/dir2")
+        (unison-sync-excluded '("*.tmp" "*.log"))
+        (unison-sync-one-way-sync t))
+    (unison-sync-build-command)))
 
 (defun unison-sync-process-next-command ()
   "Process the next command in the queue if not currently running."
@@ -137,19 +145,45 @@ If non-nil, Unison will only propagate changes from `unison-root1` to `unison-ro
       (push command unison-sync-queue)
       (unison-sync-process-next-command))))
 
+(defvar unison-sync-global-mode-enabled t
+  "Flag to track if unison-sync is globally enabled.
+This is toggled by the `unison-sync-global-mode' command.")
+
+;;;###autoload
+(defun unison-sync-global-mode ()
+  "Toggle unison-sync-mode globally.
+When disabled, turns off unison-sync-mode in all buffers.
+When enabled, activates unison-sync-mode in all buffers with configured roots."
+  (interactive)
+  (setq unison-sync-global-mode-enabled (not unison-sync-global-mode-enabled))
+  (if unison-sync-global-mode-enabled
+      ;; Enable in all buffers that should have it
+      (progn
+        (dolist (buffer (buffer-list))
+          (with-current-buffer buffer
+            (when (and unison-sync-root1 unison-sync-root2)
+              (unison-sync-mode 1))))
+        (message "Unison sync enabled globally"))
+    ;; Disable in all buffers
+    (progn
+      (dolist (buffer (buffer-list))
+        (with-current-buffer buffer
+          (when unison-sync-mode
+            (unison-sync-mode -1))))
+      (message "Unison sync disabled globally"))))
+
 ;;;###autoload
 (define-minor-mode unison-sync-mode
   "Minor mode to sync the current project using Unison on file save."
-  :lighter
-  " Unison-Sync"
+  :lighter " Unison-Sync"
   (if unison-sync-mode
       (add-hook 'after-save-hook #'unison-sync-on-save nil t)
     (remove-hook 'after-save-hook #'unison-sync-on-save t)))
 
 (defun unison-sync-maybe-enable ()
-  "Enable `unison-sync-mode` if `unison-root1` and `unison-root2` are set."
-  (when unison-sync-auto-enable
-    (when (and unison-root1 unison-root2)
+  "Enable `unison-sync-mode` if `unison-sync-root1` and `unison-sync-root2` are set."
+  (when (and unison-sync-auto-enable unison-sync-global-mode-enabled)
+    (when (and unison-sync-root1 unison-sync-root2)
       (unison-sync-mode 1))))
 
 (when unison-sync-auto-enable
