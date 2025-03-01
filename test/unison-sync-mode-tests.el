@@ -16,21 +16,21 @@
 
 (ert-deftest unison-sync-test-global-mode ()
   "Test global mode toggle functionality."
-  (let ((unison-global-mode-enabled t))
+  (let ((unison-sync-global-mode-enabled t))
     ;; Test disabling
-    (unison-global-mode)
-    (should-not unison-global-mode-enabled)
+    (unison-sync-global-mode)
+    (should-not unison-sync-global-mode-enabled)
     
     ;; Test enabling
-    (unison-global-mode)
-    (should unison-global-mode-enabled)))
+    (unison-sync-global-mode)
+    (should unison-sync-global-mode-enabled)))
 
 (ert-deftest unison-sync-test-auto-enable ()
   "Test that auto-enable respects global mode state."
   (let ((unison-sync-auto-enable t)
-        (unison-global-mode-enabled nil)
-        (unison-root1 "/test/dir1")
-        (unison-root2 "/test/dir2")
+        (unison-sync-global-mode-enabled nil)
+        (unison-sync-root1 "/test/dir1")
+        (unison-sync-root2 "/test/dir2")
         (unison-sync-mode nil))
     
     ;; Should not enable when global mode is disabled
@@ -38,7 +38,7 @@
     (should-not unison-sync-mode)
     
     ;; Should enable when global mode is enabled
-    (setq unison-global-mode-enabled t)
+    (setq unison-sync-global-mode-enabled t)
     (unison-sync-maybe-enable)
     (should unison-sync-mode)
     

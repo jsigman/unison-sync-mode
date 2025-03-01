@@ -63,17 +63,17 @@ If you prefer using use-package with straight.el:
 To use ~unison-sync-mode~, you need to set up directory local variables for your project. Create a ~.dir-locals.el~ file in your project root with the following content:
 
 #+BEGIN_SRC emacs-lisp
-((nil . ((unison-root1 . "/path/to/local/directory")
-         (unison-root2 . "/path/to/remote/directory")
-         (unison-excluded . ("*.tmp" "*.log"))
-         (unison-one-way-sync . nil))))
+((nil . ((unison-sync-root1 . "/path/to/local/directory")
+         (unison-sync-root2 . "/path/to/remote/directory")
+         (unison-sync-excluded . ("*.tmp" "*.log"))
+         (unison-sync-one-way-sync . nil))))
 #+END_SRC
 
 Adjust the paths and excluded patterns according to your needs.
 
 * Usage
 
-Once configured, ~unison-sync-mode~ will be automatically enabled for files in directories where ~unison-root1~ and ~unison-root2~ are set.
+Once configured, ~unison-sync-mode~ will be automatically enabled for files in directories where ~unison-sync-root1~ and ~unison-sync-root2~ are set.
 
 When ~unison-sync-mode~ is active:
 - Files will be synchronized using Unison every time you save.
@@ -83,20 +83,20 @@ When ~unison-sync-mode~ is active:
 
 - ~unison-sync-mode~: Toggle the minor mode on/off manually for the current buffer.
 - ~unison-sync-force~: Force a sync operation with the -ignorearchives flag.
-- ~unison-global-mode~: Toggle unison-sync-mode globally across all buffers.
+- ~unison-sync-global-mode~: Toggle unison-sync-mode globally across all buffers.
 
 * Customization
 
 You can customize the following variables:
 
-- ~unison-one-way-sync~: Set to non-nil to perform one-way synchronization from ~unison-root1~ to ~unison-root2~.
+- ~unison-sync-one-way-sync~: Set to non-nil to perform one-way synchronization from ~unison-sync-root1~ to ~unison-sync-root2~.
 - ~unison-sync-auto-enable~: Set to nil if you want to manually enable the mode instead of having it automatically enabled when root directories are set.
-- ~unison-global-mode-enabled~: Controls whether unison-sync should be enabled across all buffers. Normally you should use the ~unison-global-mode~ command to toggle this.
+- ~unison-sync-global-mode-enabled~: Controls whether unison-sync should be enabled across all buffers. Normally you should use the ~unison-sync-global-mode~ command to toggle this.
 
 Example:
 
 #+BEGIN_SRC emacs-lisp
-(setq unison-one-way-sync t)
+(setq unison-sync-one-way-sync t)
 (setq unison-sync-auto-enable nil)
 #+END_SRC
 
