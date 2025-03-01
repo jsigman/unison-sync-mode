@@ -26,7 +26,7 @@ jobs:
 
     - name: Run tests
       run: |
-        emacs -batch -Q -L . -l test/unison-sync-mode-tests.el -f ert-run-tests-batch-and-exit
+        emacs -batch -Q -L . -l unison-sync-mode.el -l test/unison-sync-mode-tests.el -f ert-run-tests-batch-and-exit
 
   lint:
     runs-on: ubuntu-latest
@@ -38,16 +38,12 @@ jobs:
       with:
         version: 29.1
 
-    - name: Install package-lint
+    - name: Lint package
       run: |
         emacs -batch --eval "(require 'package)" \
               --eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\") t)" \
               --eval "(package-initialize)" \
-              --eval "(package-refresh-contents)" \
-              --eval "(package-install 'package-lint)"
-
-    - name: Lint package
-      run: |
-        emacs -batch -l package-lint \
+              --eval "(unless (package-installed-p 'package-lint) (package-refresh-contents) (package-install 'package-lint))" \
+              -l package-lint \
               --eval "(setq package-lint-main-file \"unison-sync-mode.el\")" \
               -f package-lint-batch-and-exit unison-sync-mode.el

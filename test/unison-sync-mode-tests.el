@@ -11,8 +11,12 @@
 
 (ert-deftest unison-sync-test-command-building ()
   "Test that Unison command is built correctly."
-  (let ((expected-command "unison -batch /test/dir1 /test/dir2 -auto -ignore 'Name *.tmp' -ignore 'Name *.log' -force /test/dir1"))
-    (should (equal (unison-sync-test--command-builder) expected-command))))
+  (let* ((expected-command "unison -batch /test/dir1 /test/dir2 -auto -ignore 'Name *.tmp' -ignore 'Name *.log' -force /test/dir1")
+         (actual-command (unison-sync-test--command-builder)))
+    ;; Always print the commands for debugging
+    (message "Expected: %S" expected-command)
+    (message "Got: %S" actual-command)
+    (should (equal actual-command expected-command))))
 
 (ert-deftest unison-sync-test-global-mode ()
   "Test global mode toggle functionality."
