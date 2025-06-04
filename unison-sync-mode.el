@@ -91,6 +91,7 @@ If non-nil, Unison will only propagate changes from `unison-sync-root1` to `unis
     (with-current-buffer output-buffer
       (read-only-mode -1)
       (erase-buffer)
+      (font-lock-mode -1)
       (insert (format "Running command: %s\n\n" command)))
     (setq unison-sync-running t)
     (let ((process
@@ -105,8 +106,7 @@ If non-nil, Unison will only propagate changes from `unison-sync-root1` to `unis
                   (let ((moving (= (point) (process-mark proc))))
                     (save-excursion
                       (goto-char (process-mark proc))
-                      (insert
-                       (replace-regexp-in-string "\r" "\n" string))
+                      (insert (replace-regexp-in-string "\r" "\n" string))
                       (set-marker (process-mark proc) (point)))
                     (if moving
                         (goto-char (process-mark proc))))))))))
@@ -175,7 +175,8 @@ When enabled, activates unison-sync-mode in all buffers with configured roots."
 ;;;###autoload
 (define-minor-mode unison-sync-mode
   "Minor mode to sync the current project using Unison on file save."
-  :lighter " Unison-Sync"
+  :lighter
+  "Unison-Sync"
   (if unison-sync-mode
       (add-hook 'after-save-hook #'unison-sync-on-save nil t)
     (remove-hook 'after-save-hook #'unison-sync-on-save t)))
