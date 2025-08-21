@@ -145,6 +145,15 @@ If non-nil, Unison will only propagate changes from `unison-sync-root1` to `unis
       (push command unison-sync-queue)
       (unison-sync-process-next-command))))
 
+;;;###autoload
+(defun unison-sync-manual ()
+  "Run a manual Unison sync (same as auto-save sync, but triggered manually)."
+  (interactive)
+  (let ((command (unison-sync-build-command)))
+    (when command
+      (push command unison-sync-queue)
+      (unison-sync-process-next-command))))
+
 (defvar unison-sync-global-mode-enabled t
   "Flag to track if unison-sync is globally enabled.
 This is toggled by the `unison-sync-global-mode' command.")
